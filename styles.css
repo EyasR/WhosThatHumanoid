@@ -1,0 +1,456 @@
+
+/* =========================================
+   STAR WARS: HOLOCRON TRIVIA TERMINAL
+   Deep space • Holograms • Imperial UI
+   ========================================= */
+
+:root {
+  --sw-yellow: #ffe81f;
+  --sw-blue: #46d9ff;
+  --sw-blue-glow: rgba(70, 217, 255, 0.45);
+  --sw-red: #ff3c51;
+  --sw-green: #55ff9a;
+  --sw-dark: #03050d;
+  --sw-panel: rgba(10, 19, 38, 0.88);
+}
+
+/* ====== DEEP SPACE BACKGROUND ====== */
+
+body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  min-height: 100vh;
+  margin: 0;
+  padding: 30px 20px;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(ellipse at 50% 0%, #172849 0%, transparent 55%),
+    radial-gradient(ellipse at 10% 80%, #10152e 0%, transparent 45%),
+    linear-gradient(180deg, #070b18 0%, #020309 100%);
+
+  color: var(--sw-yellow);
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+}
+
+/* Animated atmospheric glow */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at 20% 30%, rgba(70, 217, 255, 0.09), transparent 25%),
+    radial-gradient(circle at 80% 65%, rgba(255, 62, 110, 0.07), transparent 30%);
+
+  animation: nebulaPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaPulse {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+/* ====== MAIN GAME ARENA ====== */
+
+.arena {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin: 25px auto 0;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* ====== HOLOGRAPHIC CHARACTER CARD ====== */
+
+.profile-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  width: 300px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 18px;
+
+  background:
+    linear-gradient(145deg, rgba(19, 37, 62, 0.95), rgba(4, 9, 22, 0.96));
+
+  border: 1px solid rgba(70, 217, 255, 0.65);
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 12px rgba(70, 217, 255, 0.15),
+    0 0 35px rgba(70, 217, 255, 0.08),
+    inset 0 0 20px rgba(70, 217, 255, 0.04);
+
+  animation: cardEnter 0.7s ease-out both;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.profile-card:hover {
+  border-color: var(--sw-yellow);
+  box-shadow:
+    0 0 18px rgba(255, 232, 31, 0.2),
+    0 0 45px rgba(70, 217, 255, 0.12),
+    inset 0 0 25px rgba(70, 217, 255, 0.06);
+}
+
+/* Scanner lines across the hologram */
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 4px,
+    rgba(70, 217, 255, 0.055) 5px,
+    transparent 6px
+  );
+
+  opacity: 0.65;
+}
+
+/* Animated scanning beam */
+.profile-card::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  top: -20%;
+  height: 35%;
+
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(70, 217, 255, 0.09),
+    transparent
+  );
+
+  animation: scanBeam 5s linear infinite;
+}
+
+.profile-card img {
+  position: relative;
+  z-index: 1;
+
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 350px;
+  object-fit: contain;
+
+  border-radius: 5px;
+
+  filter: blur(15px) grayscale(80%) brightness(0.8);
+  transition:
+    filter 0.7s ease,
+    transform 0.7s ease;
+}
+
+/* Character reveal */
+.profile-card img.revealed {
+  filter: blur(0) grayscale(0%) brightness(1.05);
+  transform: scale(1.015);
+}
+
+/* ====== CHARACTER HINTS ====== */
+
+.hints {
+  position: relative;
+  z-index: 4;
+
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 18px;
+  padding: 15px;
+
+  color: #d7eaff;
+  text-align: left;
+  line-height: 1.8;
+  font-size: 0.95rem;
+
+  background: rgba(3, 10, 24, 0.75);
+  border-left: 3px solid var(--sw-blue);
+  border-radius: 0 6px 6px 0;
+
+  box-shadow: inset 8px 0 20px rgba(70, 217, 255, 0.035);
+}
+
+.hints strong {
+  color: var(--sw-yellow);
+}
+
+/* ====== MULTIPLE-CHOICE GRID ====== */
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+
+  width: 100%;
+  max-width: 550px;
+}
+
+/* Holographic answer panels */
+.option-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  min-height: 64px;
+  padding: 16px 12px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(15, 34, 57, 0.95),
+    rgba(5, 12, 27, 0.95)
+  );
+
+  color: var(--sw-blue);
+  border: 1px solid rgba(70, 217, 255, 0.6);
+  border-radius: 7px;
+
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+
+  cursor: pointer;
+
+  box-shadow:
+    inset 0 0 15px rgba(70, 217, 255, 0.035),
+    0 0 8px rgba(70, 217, 255, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Light sweeps across each answer */
+.option-btn::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: -120%;
+  width: 80%;
+
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    rgba(21, 75, 105, 0.95),
+    rgba(8, 24, 48, 0.98)
+  );
+
+  border-color: var(--sw-blue);
+
+  box-shadow:
+    0 0 12px var(--sw-blue-glow),
+    0 0 28px rgba(70, 217, 255, 0.12),
+    inset 0 0 18px rgba(70, 217, 255, 0.08);
+}
+
+.option-btn:hover:not(:disabled)::before {
+  left: 150%;
+}
+
+.option-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.option-btn:focus-visible,
+#next-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+/* Disabled answers */
+.option-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+/* Correct answer: Jedi green */
+.option-btn.correct {
+  color: #00190c;
+  background: linear-gradient(135deg, #8affbb, #28e879);
+  border-color: var(--sw-green);
+
+  box-shadow:
+    0 0 12px rgba(85, 255, 154, 0.7),
+    0 0 35px rgba(85, 255, 154, 0.25);
+
+  animation: correctPulse 0.65s ease-out;
+}
+
+/* Wrong answer: Sith red */
+.option-btn.wrong {
+  color: #fff;
+  background: linear-gradient(135deg, #a90020, #48000d);
+  border-color: var(--sw-red);
+
+  box-shadow:
+    0 0 12px rgba(255, 60, 81, 0.6),
+    0 0 30px rgba(255, 60, 81, 0.2);
+
+  animation: wrongShake 0.35s ease-in-out;
+}
+
+/* ====== NEXT QUESTION: GOLDEN HOLO BUTTON ====== */
+
+button#next-btn {
+  position: relative;
+  overflow: hidden;
+
+  margin-top: 20px;
+  padding: 14px 30px;
+
+  color: #080808;
+  background: linear-gradient(135deg, #fff7a3, #ffe81f 50%, #d6a900);
+
+  border: 1px solid #fff7a3;
+  border-radius: 6px;
+
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 12px rgba(255, 232, 31, 0.3),
+    0 0 30px rgba(255, 232, 31, 0.1);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+button#next-btn:hover {
+  transform: translateY(-2px);
+
+  background: linear-gradient(135deg, #fff, #fff7a3);
+
+  box-shadow:
+    0 0 18px rgba(255, 232, 31, 0.65),
+    0 0 45px rgba(255, 232, 31, 0.2);
+}
+
+button#next-btn:active {
+  transform: scale(0.97);
+}
+
+/* ====== ANIMATIONS ====== */
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes scanBeam {
+  from { top: -35%; }
+  to { top: 110%; }
+}
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====== MOBILE SUPPORT ====== */
+
+@media (max-width: 480px) {
+  body {
+    padding: 20px 12px;
+  }
+
+  .arena {
+    gap: 22px;
+    margin-top: 18px;
+  }
+
+  .profile-card {
+    width: 100%;
+    max-width: 320px;
+    padding: 14px;
+  }
+
+  .options-grid {
+    gap: 10px;
+  }
+
+  .option-btn {
+    min-height: 58px;
+    padding: 12px 8px;
+    font-size: 0.88rem;
+    overflow-wrap: anywhere;
+  }
+
+  .hints {
+    font-size: 0.88rem;
+    padding: 12px;
+  }
+
+  button#next-btn {
+    width: 100%;
+    max-width: 320px;
+  }
+}
